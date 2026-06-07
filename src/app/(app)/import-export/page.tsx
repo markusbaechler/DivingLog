@@ -6,6 +6,7 @@ import {
   Watch,
   FileText,
   FileSpreadsheet,
+  FileDown,
   Upload,
   CheckCircle2,
   Loader2,
@@ -35,14 +36,29 @@ export default function ImportExportPage() {
         endpoint="/api/import/garmin"
         accept=".fit"
         icon={<Watch className="text-ocean-600" size={22} />}
-        title="Garmin Connect importieren"
-        description="Lade die FIT-Dateien deiner Tauchaktivitäten hoch (Tiefe, Temperatur, GPS und Profil werden übernommen)."
+        title="Garmin – FIT-Datei (mit Profil)"
+        description="Lade die FIT-Dateien einzelner Tauchaktivitäten hoch. Damit kommen auch Tauchprofil (Tiefe/Temperatur über Zeit) und GPS-Position mit."
         helpHref="https://connect.garmin.com/app/home"
         helpText="Garmin Connect öffnen"
         howto={[
           "In Garmin Connect die Tauchaktivität öffnen",
-          'Über das Menü „Originaldatei exportieren" (FIT) herunterladen',
-          "Die .fit-Datei(en) hier hochladen",
+          'Über das Zahnrad-Menü „Originaldatei exportieren" (FIT) wählen',
+          "Die entpackte .fit-Datei hier hochladen",
+        ]}
+      />
+
+      <ImportCard
+        endpoint="/api/import/garmin-csv"
+        accept=".csv"
+        icon={<FileDown className="text-ocean-600" size={22} />}
+        title="Garmin – CSV-Liste (mehrere Tauchgänge)"
+        description="Importiere viele Tauchgänge auf einmal aus dem CSV-Export der Garmin-Aktivitätenliste (Übersichtsdaten: Datum, Tiefe, Dauer, Temperatur). Trennzeichen und deutsche/englische Spalten werden automatisch erkannt."
+        helpHref="https://connect.garmin.com/modern/activities"
+        helpText="Garmin-Aktivitäten öffnen"
+        howto={[
+          'In Garmin Connect: Aktivitäten → nach Tauchen filtern',
+          'Oben rechts über „Exportieren nach CSV" herunterladen',
+          "Die .csv-Datei hier hochladen",
         ]}
       />
 
