@@ -41,6 +41,17 @@ function splitLine(line: string, delim: string): string[] {
   return out.map((s) => s.trim());
 }
 
+/**
+ * Garmin wickelt Datenzeilen teils komplett in Anführungszeichen und quotet
+ * jedes Feld doppelt (z. B. `"...,""Fish Heaven"",""0.01"",..."`).
+ * Diese Zeilen einmal "auswickeln", damit normales CSV-Parsing greift.
+ */
+function unwrapRow(line: string): string {
+  let s = line.trim();
+  if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+  return s.replace(/""/g, '"');
+}
+
 function detectDelimiter(headerLine: string): string {
   const candidates = [";", ",", "\t"];
   let best = ",";
@@ -124,6 +135,17 @@ function parseDate(dateRaw?: string, timeRaw?: string): string | null {
   return null;
 }
 
+/** Gewässerart aus Garmin-Text ableiten. */
+function parseWaterType(raw: string | undefined): "salt" | "fresh" | "brackish" | null {
+  if (!raw) return null;
+  const s = raw.toLowerCase();
+  if (s.includes("salz") || s.includes("salt") || s.includes("meer")) return "salt";
+  if (s.includes("süss") || s.includes("süß") || s.includes("suss") || s.includes("fresh"))
+    return "fresh";
+  if (s.includes("brack")) return "brackish";
+  return null;
+}
+
 /** Findet den Spaltenindex, dessen Überschrift einen der Aliasse enthält. */
 function findCol(headers: string[], aliases: string[]): number {
   for (const alias of aliases) {
@@ -167,7 +189,12 @@ export function parseGarminCsv(text: string): ParsedDive[] {
     maxTemp: findCol(headers, [
       "max temp", "max. temp", "maximale temp", "höchsttemperatur", "hochsttemperatur",
     ]),
+    minWaterTemp: findCol(headers, [
+      "minimale wassertemp", "min. wassertemp", "wassertemp niedrigste",
+    ]),
     waterTemp: findCol(headers, ["wassertemp", "water temp", "temperatur", "temp"]),
+    weight: findCol(headers, ["gewicht", "weight", "blei"]),
+    waterClass: findCol(headers, ["gewässerart", "gewasserart", "wasserart", "water type"]),
     surface: findCol(headers, ["surface interval", "oberflächenpause", "oberflachenpause"]),
   };
 
@@ -176,8 +203,15 @@ export function parseGarminCsv(text: string): ParsedDive[] {
   const dives: ParsedDive[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const cells = splitLine(lines[i], delim);
-    const get = (idx: number) => (idx >= 0 ? cells[idx] : undefined);
+    let cells = splitLine(lines[i], delim);
+    // Garmins doppelt-gequotete Zeilen erkennen und auswickeln.
+    if (cells.length < headers.length && lines[i].trim().startsWith('"')) {
+      cells = splitLine(unwrapRow(lines[i]), delim);
+    }
+    const get = (idx: number) => {
+      const v = idx >= 0 ? cells[idx] : undefined;
+      return v === "--" || v === "" ? undefined : v;
+    };
 
     // Wenn eine Typ-Spalte existiert: nur Tauch-Aktivitäten übernehmen.
     if (col.type >= 0) {
@@ -209,15 +243,18 @@ export function parseGarminCsv(text: string): ParsedDive[] {
         avg_depth: parseNumber(get(col.avgDepth)),
         duration,
         water_temp_bottom:
-          parseNumber(get(col.minTemp)) ?? parseNumber(get(col.waterTemp)),
+          parseNumber(get(col.minWaterTemp)) ??
+          parseNumber(get(col.minTemp)) ??
+          parseNumber(get(col.waterTemp)),
         water_temp_surface: parseNumber(get(col.maxTemp)),
+        weight: parseNumber(get(col.weight)),
         entry_source: "garmin",
         external_id: `garmin-csv:${diveDate}${title ? `:${title}` : ""}`,
       },
     };
 
     if (title) {
-      dive.site = { name: title, water_type: "salt" };
+      dive.site = { name: title, water_type: parseWaterType(get(col.waterClass)) };
     }
 
     dives.push(dive);
