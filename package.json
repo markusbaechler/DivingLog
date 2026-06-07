@@ -1,0 +1,40 @@
+{
+  "name": "divinglog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tauchlogbuch-App – Mobile-first PWA mit Supabase, Weltkarte, Statistiken, Garmin-/DivingLog-Import und Excel-Export",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "date-fns": "^4.1.0",
+    "exceljs": "^4.4.0",
+    "fast-xml-parser": "^4.5.0",
+    "fit-file-parser": "^1.20.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.454.0",
+    "next": "^15.5.19",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-leaflet": "^4.2.1",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.14",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.19",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  }
+}
