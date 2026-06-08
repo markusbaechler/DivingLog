@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { DiveSite, DiveWithSite } from "@/lib/types";
-import { toDatetimeLocal } from "@/lib/format";
+import { toDatetimeLocal, localInputToIso } from "@/lib/format";
 import { Save, Trash2 } from "lucide-react";
 
 const DIVE_TYPES = ["Recreational", "Drift", "Night", "Wreck", "Cave", "Ice", "Deep", "Training"];
@@ -81,7 +81,7 @@ export function DiveForm({
         dive_site_id: diveSiteId,
         title: field(form, "title") || null,
         dive_number: intOrNull(field(form, "dive_number")),
-        dive_date: new Date(field(form, "dive_date")).toISOString(),
+        dive_date: localInputToIso(field(form, "dive_date")),
         max_depth: numOrNull(field(form, "max_depth")),
         avg_depth: numOrNull(field(form, "avg_depth")),
         duration: intOrNull(field(form, "duration")),

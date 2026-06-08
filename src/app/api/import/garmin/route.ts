@@ -37,5 +37,8 @@ export async function POST(request: Request) {
   }
 
   const result = await persistParsedDives(supabase, user.id, allParsed);
-  return NextResponse.json({ ...result, errors });
+  return NextResponse.json({
+    ...result,
+    errors: [...errors, ...result.errors],
+  });
 }

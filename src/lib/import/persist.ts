@@ -5,6 +5,7 @@ export interface ImportResult {
   imported: number;
   skipped: number;
   sitesCreated: number;
+  errors: string[];
 }
 
 /**
@@ -20,6 +21,7 @@ export async function persistParsedDives(
   let imported = 0;
   let skipped = 0;
   let sitesCreated = 0;
+  const errorSet = new Set<string>();
 
   // Bestehende Tauchplätze des Nutzers laden (für Wiederverwendung)
   const { data: existingSites } = await supabase
@@ -127,6 +129,7 @@ export async function persistParsedDives(
 
     if (diveErr || !newDive) {
       skipped++;
+      if (diveErr?.message) errorSet.add(diveErr.message);
       continue;
     }
     imported++;
@@ -152,7 +155,7 @@ export async function persistParsedDives(
     }
   }
 
-  return { imported, skipped, sitesCreated };
+  return { imported, skipped, sitesCreated, errors: [...errorSet].slice(0, 5) };
 }
 
 function siteKey(name: string, lat: number | null, lon: number | null): string {

@@ -149,7 +149,22 @@ export async function parseGarminFit(buffer: Buffer): Promise<ParsedDive[]> {
 
   const elapsed = num(session.total_elapsed_time) ?? num(session.total_timer_time);
   const duration = elapsed != null ? Math.round(elapsed / 60) : null;
-  const startTime = toIso(session.start_time) ?? firstTs ?? new Date().toISOString();
+  const startTimeUtc = toIso(session.start_time) ?? firstTs ?? new Date().toISOString();
+
+  // Lokale Tauchzeit bestimmen: FIT liefert in der activity-Message timestamp
+  // (UTC) und local_timestamp (Wanduhrzeit). Die Differenz ist der lokale
+  // Offset. Wir speichern die lokale Wanduhrzeit als UTC-Instant, damit die
+  // angezeigte Uhrzeit der tatsächlichen Tauchzeit entspricht.
+  const activity = data.activity ?? {};
+  const actUtc = toIso(activity.timestamp);
+  const actLocal = toIso(activity.local_timestamp);
+  let offsetMs = 0;
+  if (actUtc && actLocal) {
+    offsetMs = new Date(actLocal).getTime() - new Date(actUtc).getTime();
+  }
+  const startTime = new Date(
+    new Date(startTimeUtc).getTime() + offsetMs,
+  ).toISOString();
 
   const o2 = num(gas.oxygen_content);
   const he = num(gas.helium_content);

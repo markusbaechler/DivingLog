@@ -106,33 +106,38 @@ function parseDurationMinutes(raw: string | undefined): number | null {
   return n == null ? null : Math.round(n);
 }
 
-/** Datum (+ optionale Zeit) robust parsen, inkl. deutschem Format. */
+/**
+ * Datum (+ optionale Zeit) als lokale Wanduhrzeit interpretieren und als
+ * UTC-Instant speichern (damit die angezeigte Uhrzeit nie verschoben wird).
+ * Unterstützt ISO (YYYY-MM-DD) und deutsches Format (DD.MM.YYYY).
+ */
 function parseDate(dateRaw?: string, timeRaw?: string): string | null {
   if (!dateRaw) return null;
-  const combined = timeRaw ? `${dateRaw} ${timeRaw}`.trim() : dateRaw.trim();
+  const combined = (timeRaw ? `${dateRaw} ${timeRaw}` : dateRaw).trim();
 
-  // Direkter Versuch (ISO, US, …)
-  const direct = new Date(combined);
-  if (!Number.isNaN(direct.getTime())) return direct.toISOString();
+  const iso = combined.match(
+    /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
+  );
+  if (iso) {
+    const [, y, mo, d, h = "0", mi = "0", se = "0"] = iso;
+    return new Date(
+      Date.UTC(+y, +mo - 1, +d, +h, +mi, +se),
+    ).toISOString();
+  }
 
-  // Deutsches Format: DD.MM.YYYY [HH:MM[:SS]]
-  const m = combined.match(
+  const de = combined.match(
     /(\d{1,2})\.(\d{1,2})\.(\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
   );
-  if (m) {
-    const [, d, mo, y, h = "0", mi = "0", se = "0"] = m;
+  if (de) {
+    const [, d, mo, y, h = "0", mi = "0", se = "0"] = de;
     const year = y.length === 2 ? 2000 + parseInt(y, 10) : parseInt(y, 10);
-    const date = new Date(
-      year,
-      parseInt(mo, 10) - 1,
-      parseInt(d, 10),
-      parseInt(h, 10),
-      parseInt(mi, 10),
-      parseInt(se, 10),
-    );
-    if (!Number.isNaN(date.getTime())) return date.toISOString();
+    return new Date(
+      Date.UTC(year, +mo - 1, +d, +h, +mi, +se),
+    ).toISOString();
   }
-  return null;
+
+  const fallback = new Date(combined);
+  return Number.isNaN(fallback.getTime()) ? null : fallback.toISOString();
 }
 
 /** Gewässerart aus Garmin-Text ableiten. */
