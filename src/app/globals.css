@@ -6,18 +6,21 @@
   color-scheme: light;
 }
 
+html.dark {
+  color-scheme: dark;
+}
+
 html,
 body {
   height: 100%;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
-  /* Safe-Area für Geräte mit Notch */
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  /* Safe area for notched devices */
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Schicke Scrollbars zurückhalten, mobile-first */
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -28,7 +31,7 @@ body {
   }
 }
 
-/* Leaflet braucht eine definierte Höhe */
+/* Leaflet needs an explicit height */
 .leaflet-container {
   height: 100%;
   width: 100%;

@@ -71,11 +71,11 @@ export function DiveMap({
 
       const marker = L.marker([p.lat, p.lng], { icon }).addTo(layer);
       const link = p.href
-        ? `<br/><a href="${p.href}" style="color:#1463e1;">Tauchgänge ansehen →</a>`
+        ? `<br/><a href="${p.href}" style="color:#1463e1;">View dives →</a>`
         : "";
       marker.bindPopup(
         `<strong>${p.label}</strong>${
-          p.count ? `<br/>${p.count} Tauchgang/-gänge` : ""
+          p.count ? `<br/>${p.count} ${p.count === 1 ? "dive" : "dives"}` : ""
         }${link}`,
       );
     }

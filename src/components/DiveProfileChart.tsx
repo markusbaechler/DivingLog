@@ -46,7 +46,7 @@ export function DiveProfileChart({ samples }: { samples: DiveSample[] }) {
         <Tooltip
           formatter={(value: number, name) =>
             name === "depth"
-              ? [`${Math.abs(value)} m`, "Tiefe"]
+              ? [`${Math.abs(value)} m`, "Depth"]
               : [`${value} °C`, "Temp."]
           }
           labelFormatter={(l) => `${l} min`}

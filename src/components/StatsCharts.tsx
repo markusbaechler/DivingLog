@@ -23,7 +23,7 @@ export function YearChart({
         <XAxis dataKey="year" tick={{ fontSize: 11 }} stroke="#94a3b8" />
         <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
         <Tooltip
-          formatter={(v: number) => [`${v}`, "Tauchgänge"]}
+          formatter={(v: number) => [`${v}`, "Dives"]}
           cursor={{ fill: "#eff6ff" }}
         />
         <Bar dataKey="count" radius={[4, 4, 0, 0]} fill="#1463e1" />
@@ -45,7 +45,7 @@ export function DepthChart({
         <XAxis dataKey="range" tick={{ fontSize: 10 }} stroke="#94a3b8" />
         <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
         <Tooltip
-          formatter={(v: number) => [`${v}`, "Tauchgänge"]}
+          formatter={(v: number) => [`${v}`, "Dives"]}
           cursor={{ fill: "#eff6ff" }}
         />
         <Bar dataKey="count" radius={[4, 4, 0, 0]}>

@@ -18,9 +18,11 @@ export default async function StatisticsPage() {
   if (dives.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-bold text-slate-800">Statistik</h1>
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-          Noch keine Daten für Statistiken.
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+          Statistics
+        </h1>
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+          No data for statistics yet.
         </div>
       </div>
     );
@@ -28,40 +30,44 @@ export default async function StatisticsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-800">Statistik</h1>
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+        Statistics
+      </h1>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Tauchgänge" value={s.totalDives} accent />
-        <StatCard label="Gesamtzeit" value={s.totalBottomTimeH} unit="h" />
-        <StatCard label="Tiefster" value={s.maxDepth} unit="m" />
-        <StatCard label="Ø Tiefe" value={s.avgDepth} unit="m" />
-        <StatCard label="Ø Dauer" value={s.avgDuration} unit="min" />
-        <StatCard label="Längster" value={s.longestDiveMin} unit="min" />
-        <StatCard label="Tauchplätze" value={s.sites} />
-        <StatCard label="Länder" value={s.countries} />
+        <StatCard label="Dives" value={s.totalDives} accent />
+        <StatCard label="Total time" value={s.totalBottomTimeH} unit="h" />
+        <StatCard label="Deepest" value={s.maxDepth} unit="m" />
+        <StatCard label="Avg depth" value={s.avgDepth} unit="m" />
+        <StatCard label="Avg duration" value={s.avgDuration} unit="min" />
+        <StatCard label="Longest" value={s.longestDiveMin} unit="min" />
+        <StatCard label="Sites" value={s.sites} />
+        <StatCard label="Countries" value={s.countries} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-4">
-          <h2 className="mb-3 font-semibold text-slate-700">
-            Tauchgänge pro Jahr
+        <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-3 font-semibold text-slate-700 dark:text-slate-200">
+            Dives per year
           </h2>
           <YearChart data={s.divesPerYear} />
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-4">
-          <h2 className="mb-3 font-semibold text-slate-700">Tiefenverteilung</h2>
+        <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-3 font-semibold text-slate-700 dark:text-slate-200">
+            Depth distribution
+          </h2>
           <DepthChart data={s.depthBuckets} />
         </section>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-4">
-          <h2 className="mb-3 font-semibold text-slate-700">
-            Häufigste Tauchplätze
+        <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-3 font-semibold text-slate-700 dark:text-slate-200">
+            Most frequent dive sites
           </h2>
           {s.topSites.length === 0 ? (
-            <p className="text-sm text-slate-400">Keine Tauchplätze erfasst.</p>
+            <p className="text-sm text-slate-400">No dive sites recorded.</p>
           ) : (
             <ul className="space-y-2">
               {s.topSites.map((site) => (
@@ -69,8 +75,10 @@ export default async function StatisticsPage() {
                   key={site.name}
                   className="flex items-center justify-between text-sm"
                 >
-                  <span className="truncate text-slate-700">{site.name}</span>
-                  <span className="ml-2 shrink-0 rounded-full bg-ocean-50 px-2 py-0.5 text-xs font-semibold text-ocean-700">
+                  <span className="truncate text-slate-700 dark:text-slate-200">
+                    {site.name}
+                  </span>
+                  <span className="ml-2 shrink-0 rounded-full bg-ocean-50 px-2 py-0.5 text-xs font-semibold text-ocean-700 dark:bg-ocean-950 dark:text-ocean-300">
                     {site.count}×
                   </span>
                 </li>
@@ -79,23 +87,22 @@ export default async function StatisticsPage() {
           )}
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-4">
-          <h2 className="mb-3 font-semibold text-slate-700">Weitere Werte</h2>
+        <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-3 font-semibold text-slate-700 dark:text-slate-200">
+            More values
+          </h2>
           <dl className="space-y-2 text-sm">
-            <Row label="Erster Tauchgang" value={formatDate(s.firstDive)} />
-            <Row label="Letzter Tauchgang" value={formatDate(s.lastDive)} />
+            <Row label="First dive" value={formatDate(s.firstDive)} />
+            <Row label="Last dive" value={formatDate(s.lastDive)} />
             <Row
-              label="Kälteste Temperatur"
+              label="Coldest temperature"
               value={s.coldestTemp != null ? `${s.coldestTemp} °C` : "—"}
             />
             <Row
-              label="Wärmste Temperatur"
+              label="Warmest temperature"
               value={s.warmestTemp != null ? `${s.warmestTemp} °C` : "—"}
             />
-            <Row
-              label="Gesamttauchzeit"
-              value={`${s.totalBottomTimeMin} min`}
-            />
+            <Row label="Total bottom time" value={`${s.totalBottomTimeMin} min`} />
           </dl>
         </section>
       </div>
@@ -105,9 +112,9 @@ export default async function StatisticsPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 last:border-0">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-700">{value}</dd>
+    <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 last:border-0 dark:border-slate-800">
+      <dt className="text-slate-500 dark:text-slate-400">{label}</dt>
+      <dd className="font-medium text-slate-700 dark:text-slate-200">{value}</dd>
     </div>
   );
 }

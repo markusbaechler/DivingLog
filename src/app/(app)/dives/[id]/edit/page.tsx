@@ -28,11 +28,13 @@ export default async function EditDivePage({
     <div className="space-y-4">
       <Link
         href={`/dives/${id}`}
-        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-ocean-600"
+        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-ocean-600 dark:text-slate-400"
       >
-        <ChevronLeft size={16} /> Zurück
+        <ChevronLeft size={16} /> Back
       </Link>
-      <h1 className="text-xl font-bold text-slate-800">Tauchgang bearbeiten</h1>
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+        Edit dive
+      </h1>
       <DiveForm dive={dive as DiveWithSite} sites={(sites ?? []) as DiveSite[]} />
     </div>
   );

@@ -15,11 +15,13 @@ export default async function NewDivePage() {
     <div className="space-y-4">
       <Link
         href="/dives"
-        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-ocean-600"
+        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-ocean-600 dark:text-slate-400"
       >
-        <ChevronLeft size={16} /> Zurück
+        <ChevronLeft size={16} /> Back
       </Link>
-      <h1 className="text-xl font-bold text-slate-800">Neuer Tauchgang</h1>
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+        New dive
+      </h1>
       <DiveForm sites={(sites ?? []) as DiveSite[]} />
     </div>
   );

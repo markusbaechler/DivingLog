@@ -25,10 +25,9 @@ export default function ImportExportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Daten</h1>
-        <p className="text-sm text-slate-500">
-          Importiere Tauchgänge aus Garmin oder DivingLog und exportiere dein
-          Logbuch nach Excel.
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Data</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Import dives from Garmin or DivingLog and export your logbook to Excel.
         </p>
       </div>
 
@@ -36,14 +35,14 @@ export default function ImportExportPage() {
         endpoint="/api/import/garmin"
         accept=".fit"
         icon={<Watch className="text-ocean-600" size={22} />}
-        title="Garmin – FIT-Datei (mit Profil)"
-        description="Lade die FIT-Dateien einzelner Tauchaktivitäten hoch. Damit kommen auch Tauchprofil (Tiefe/Temperatur über Zeit) und GPS-Position mit."
+        title="Garmin – FIT file (with profile)"
+        description="Upload the FIT files of individual dive activities. This also imports the dive profile (depth/temperature over time), gas, tanks, deco data and GPS position."
         helpHref="https://connect.garmin.com/app/home"
-        helpText="Garmin Connect öffnen"
+        helpText="Open Garmin Connect"
         howto={[
-          "In Garmin Connect die Tauchaktivität öffnen",
-          'Über das Zahnrad-Menü „Originaldatei exportieren" (FIT) wählen',
-          "Die entpackte .fit-Datei hier hochladen",
+          "In Garmin Connect, open the dive activity",
+          'Use the gear menu to "Export to original file" (FIT)',
+          "Upload the extracted .fit file(s) here",
         ]}
       />
 
@@ -51,14 +50,14 @@ export default function ImportExportPage() {
         endpoint="/api/import/garmin-csv"
         accept=".csv"
         icon={<FileDown className="text-ocean-600" size={22} />}
-        title="Garmin – CSV-Liste (mehrere Tauchgänge)"
-        description="Importiere viele Tauchgänge auf einmal aus dem CSV-Export der Garmin-Aktivitätenliste (Übersichtsdaten: Datum, Tiefe, Dauer, Temperatur). Trennzeichen und deutsche/englische Spalten werden automatisch erkannt."
+        title="Garmin – CSV list (many dives)"
+        description="Import many dives at once from the CSV export of the Garmin activity list (summary data: date, depth, duration, temperature). Delimiter and German/English columns are detected automatically."
         helpHref="https://connect.garmin.com/modern/activities"
-        helpText="Garmin-Aktivitäten öffnen"
+        helpText="Open Garmin activities"
         howto={[
-          'In Garmin Connect: Aktivitäten → nach Tauchen filtern',
-          'Oben rechts über „Exportieren nach CSV" herunterladen',
-          "Die .csv-Datei hier hochladen",
+          "In Garmin Connect: Activities → filter by diving",
+          'Top right, choose "Export to CSV"',
+          "Upload the .csv file here",
         ]}
       />
 
@@ -66,13 +65,13 @@ export default function ImportExportPage() {
         endpoint="/api/import/uddf"
         accept=".uddf,.xml"
         icon={<FileText className="text-ocean-600" size={22} />}
-        title="DivingLog importieren"
-        description="Importiere deine Tauchgänge aus DivingLog im UDDF-Format (XML)."
-        helpHref="https://www.divinglog.com/german/home/index.php"
-        helpText="DivingLog öffnen"
+        title="DivingLog (UDDF)"
+        description="Import your dives from DivingLog in the UDDF format (XML)."
+        helpHref="https://www.divinglog.com/english/home/index.php"
+        helpText="Open DivingLog"
         howto={[
-          "In DivingLog: Datei → Exportieren → UDDF wählen",
-          "Die exportierte .uddf-Datei hier hochladen",
+          "In DivingLog: File → Export → choose UDDF",
+          "Upload the exported .uddf file here",
         ]}
       />
 
@@ -116,23 +115,25 @@ function ImportCard({
       setResult(json);
       if (json.imported) router.refresh();
     } catch {
-      setResult({ error: "Upload fehlgeschlagen" });
+      setResult({ error: "Upload failed" });
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ocean-50">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ocean-50 dark:bg-ocean-950">
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="font-semibold text-slate-800">{title}</h2>
-          <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+            {description}
+          </p>
 
-          <ol className="mt-3 list-inside list-decimal space-y-0.5 text-xs text-slate-500">
+          <ol className="mt-3 list-inside list-decimal space-y-0.5 text-xs text-slate-500 dark:text-slate-400">
             {howto.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
@@ -145,7 +146,7 @@ function ImportCard({
               ) : (
                 <Upload size={16} />
               )}
-              {busy ? "Importiere…" : "Dateien wählen"}
+              {busy ? "Importing…" : "Choose files"}
               <input
                 type="file"
                 accept={accept}
@@ -159,28 +160,28 @@ function ImportCard({
               href={helpHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-ocean-600 hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-ocean-600 hover:underline dark:text-ocean-400"
             >
               {helpText} <ExternalLink size={13} />
             </a>
           </div>
 
           {result && (
-            <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
+            <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800">
               {result.error ? (
-                <p className="text-red-600">{result.error}</p>
+                <p className="text-red-600 dark:text-red-400">{result.error}</p>
               ) : (
-                <p className="flex items-center gap-1.5 text-emerald-700">
+                <p className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
                   <CheckCircle2 size={16} />
-                  {result.imported ?? 0} importiert
-                  {result.skipped ? `, ${result.skipped} übersprungen` : ""}
+                  {result.imported ?? 0} imported
+                  {result.skipped ? `, ${result.skipped} skipped` : ""}
                   {result.sitesCreated
-                    ? `, ${result.sitesCreated} Tauchplätze angelegt`
+                    ? `, ${result.sitesCreated} dive sites created`
                     : ""}
                 </p>
               )}
               {result.errors && result.errors.length > 0 && (
-                <ul className="mt-2 list-inside list-disc text-xs text-amber-700">
+                <ul className="mt-2 list-inside list-disc text-xs text-amber-700 dark:text-amber-400">
                   {result.errors.map((e, i) => (
                     <li key={i}>{e}</li>
                   ))}
@@ -196,22 +197,24 @@ function ImportCard({
 
 function ExportCard() {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950">
           <FileSpreadsheet className="text-emerald-600" size={22} />
         </div>
         <div className="flex-1">
-          <h2 className="font-semibold text-slate-800">Excel-Export</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
-            Lade dein komplettes Logbuch inklusive Statistik als Excel-Datei
-            (.xlsx) herunter.
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100">
+            Excel export
+          </h2>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+            Download your entire logbook including statistics as an Excel file
+            (.xlsx).
           </p>
           <a
             href="/api/export/excel"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
-            <FileSpreadsheet size={16} /> Als Excel exportieren
+            <FileSpreadsheet size={16} /> Export to Excel
           </a>
         </div>
       </div>

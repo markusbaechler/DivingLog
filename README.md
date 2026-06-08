@@ -31,8 +31,9 @@ Statistiken, Import aus **Garmin Connect** und **DivingLog** sowie
 ### 1. Supabase-Projekt anlegen
 
 1. Auf [supabase.com](https://supabase.com/) ein kostenloses Projekt erstellen.
-2. Im **SQL-Editor** den Inhalt von [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql)
-   ausführen. Das legt Tabellen, Trigger und Row-Level-Security-Policies an.
+2. Im **SQL-Editor** nacheinander ausführen:
+   - [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) – Tabellen, Trigger und Row-Level-Security-Policies.
+   - [`supabase/migrations/0002_rich_dive_fields.sql`](supabase/migrations/0002_rich_dive_fields.sql) – zusätzliche Tauchgang-Felder (Garmin-Datenmodell: Gas, Tanks, Deko, Puls, GPS …).
 3. Unter **Settings → API** die `Project URL` und den `anon public`-Key kopieren.
 
 > Optional: In **Authentication → Providers → Email** kannst du die

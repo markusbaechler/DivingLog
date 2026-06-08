@@ -7,16 +7,8 @@ import type { DiveSite, DiveWithSite } from "@/lib/types";
 import { toDatetimeLocal } from "@/lib/format";
 import { Save, Trash2 } from "lucide-react";
 
-const DIVE_TYPES = [
-  "Boot",
-  "Ufer",
-  "Strömung",
-  "Nacht",
-  "Wrack",
-  "Höhle",
-  "Eis",
-  "Training",
-];
+const DIVE_TYPES = ["Recreational", "Drift", "Night", "Wreck", "Cave", "Ice", "Deep", "Training"];
+const ENTRY_TYPES = ["Boat", "Shore", "Pier", "Liveaboard"];
 
 function field(form: HTMLFormElement, name: string): string {
   const el = form.elements.namedItem(name) as HTMLInputElement | null;
@@ -43,9 +35,7 @@ export function DiveForm({
   const isEdit = !!dive;
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [newSite, setNewSite] = useState(
-    !isEdit && sites.length === 0,
-  );
+  const [newSite, setNewSite] = useState(!isEdit && sites.length === 0);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,9 +48,9 @@ export function DiveForm({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error("Nicht angemeldet.");
+      if (!user) throw new Error("Not signed in.");
 
-      // 1) Tauchplatz auflösen
+      // 1) Resolve dive site
       let diveSiteId: string | null = null;
       if (newSite) {
         const name = field(form, "site_name").trim();
@@ -85,10 +75,11 @@ export function DiveForm({
         diveSiteId = field(form, "dive_site_id") || null;
       }
 
-      // 2) Tauchgang-Daten
+      // 2) Dive data
       const payload = {
         user_id: user.id,
         dive_site_id: diveSiteId,
+        title: field(form, "title") || null,
         dive_number: intOrNull(field(form, "dive_number")),
         dive_date: new Date(field(form, "dive_date")).toISOString(),
         max_depth: numOrNull(field(form, "max_depth")),
@@ -99,13 +90,17 @@ export function DiveForm({
         air_temp: numOrNull(field(form, "air_temp")),
         visibility: numOrNull(field(form, "visibility")),
         weather: field(form, "weather") || null,
+        current_strength: field(form, "current_strength") || null,
+        surface_conditions: field(form, "surface_conditions") || null,
         weight: numOrNull(field(form, "weight")),
         suit_type: field(form, "suit_type") || null,
         tank_volume: numOrNull(field(form, "tank_volume")),
         gas_o2: numOrNull(field(form, "gas_o2")),
+        gas_he: numOrNull(field(form, "gas_he")),
         pressure_start: intOrNull(field(form, "pressure_start")),
         pressure_end: intOrNull(field(form, "pressure_end")),
         dive_type: field(form, "dive_type") || null,
+        entry_type: field(form, "entry_type") || null,
         buddy: field(form, "buddy") || null,
         dive_guide: field(form, "dive_guide") || null,
         rating: intOrNull(field(form, "rating")),
@@ -130,13 +125,13 @@ export function DiveForm({
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen");
+      setError(err instanceof Error ? err.message : "Saving failed");
       setSaving(false);
     }
   }
 
   async function handleDelete() {
-    if (!dive || !confirm("Diesen Tauchgang wirklich löschen?")) return;
+    if (!dive || !confirm("Really delete this dive?")) return;
     const supabase = createClient();
     await supabase.from("dives").delete().eq("id", dive.id);
     router.push("/dives");
@@ -145,17 +140,17 @@ export function DiveForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Tauchplatz */}
-      <Section title="Tauchplatz">
+      {/* Dive site */}
+      <Section title="Dive site">
         {!newSite && (
           <div className="sm:col-span-2">
-            <Label>Bestehender Tauchplatz</Label>
+            <Label>Existing dive site</Label>
             <select
               name="dive_site_id"
               defaultValue={dive?.dive_site_id ?? ""}
               className={inputCls}
             >
-              <option value="">— keiner —</option>
+              <option value="">— none —</option>
               {sites.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
@@ -169,107 +164,114 @@ export function DiveForm({
           <button
             type="button"
             onClick={() => setNewSite(!newSite)}
-            className="text-sm font-medium text-ocean-600 hover:underline"
+            className="text-sm font-medium text-ocean-600 hover:underline dark:text-ocean-400"
           >
-            {newSite
-              ? "↩ Bestehenden Tauchplatz wählen"
-              : "+ Neuen Tauchplatz anlegen"}
+            {newSite ? "↩ Choose existing dive site" : "+ Create new dive site"}
           </button>
         </div>
 
         {newSite && (
           <>
             <Input name="site_name" label="Name *" required />
-            <Input name="site_country" label="Land" />
-            <Input name="site_region" label="Region / Ort" />
+            <Input name="site_country" label="Country" />
+            <Input name="site_region" label="Region / place" />
             <div>
-              <Label>Gewässer</Label>
+              <Label>Water</Label>
               <select name="site_water_type" className={inputCls} defaultValue="salt">
-                <option value="salt">Salzwasser</option>
-                <option value="fresh">Süsswasser</option>
-                <option value="brackish">Brackwasser</option>
+                <option value="salt">Salt water</option>
+                <option value="fresh">Fresh water</option>
+                <option value="brackish">Brackish</option>
               </select>
             </div>
-            <Input name="site_lat" label="Breitengrad (lat)" placeholder="z. B. 27.85" />
-            <Input name="site_lng" label="Längengrad (lng)" placeholder="z. B. 34.30" />
+            <Input name="site_lat" label="Latitude" placeholder="e.g. 27.85" />
+            <Input name="site_lng" label="Longitude" placeholder="e.g. 34.30" />
           </>
         )}
       </Section>
 
-      {/* Eckdaten */}
-      <Section title="Eckdaten">
+      {/* Key facts */}
+      <Section title="Key facts">
+        <Input name="title" label="Title" defaultValue={dive?.title ?? ""} placeholder="e.g. House Reef II" />
         <Input
           name="dive_date"
-          label="Datum & Zeit *"
+          label="Date & time *"
           type="datetime-local"
           required
           defaultValue={toDatetimeLocal(dive?.dive_date ?? new Date().toISOString())}
         />
-        <Input name="dive_number" label="Tauchgang-Nr." type="number" defaultValue={dive?.dive_number ?? ""} />
-        <Input name="max_depth" label="Max. Tiefe (m)" defaultValue={dive?.max_depth ?? ""} />
-        <Input name="avg_depth" label="Ø Tiefe (m)" defaultValue={dive?.avg_depth ?? ""} />
-        <Input name="duration" label="Dauer (min)" type="number" defaultValue={dive?.duration ?? ""} />
+        <Input name="dive_number" label="Dive number" type="number" defaultValue={dive?.dive_number ?? ""} />
+        <Input name="max_depth" label="Max depth (m)" defaultValue={dive?.max_depth ?? ""} />
+        <Input name="avg_depth" label="Avg depth (m)" defaultValue={dive?.avg_depth ?? ""} />
+        <Input name="duration" label="Duration (min)" type="number" defaultValue={dive?.duration ?? ""} />
         <div>
-          <Label>Tauchart</Label>
+          <Label>Dive type</Label>
           <select name="dive_type" className={inputCls} defaultValue={dive?.dive_type ?? ""}>
             <option value="">—</option>
             {DIVE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label>Entry type</Label>
+          <select name="entry_type" className={inputCls} defaultValue={dive?.entry_type ?? ""}>
+            <option value="">—</option>
+            {ENTRY_TYPES.map((t) => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </div>
       </Section>
 
-      {/* Umgebung */}
-      <Section title="Umgebung">
-        <Input name="water_temp_surface" label="Wassertemp. Oberfläche (°C)" defaultValue={dive?.water_temp_surface ?? ""} />
-        <Input name="water_temp_bottom" label="Wassertemp. Grund (°C)" defaultValue={dive?.water_temp_bottom ?? ""} />
-        <Input name="air_temp" label="Lufttemperatur (°C)" defaultValue={dive?.air_temp ?? ""} />
-        <Input name="visibility" label="Sicht (m)" defaultValue={dive?.visibility ?? ""} />
-        <Input name="weather" label="Wetter" defaultValue={dive?.weather ?? ""} />
+      {/* Environment */}
+      <Section title="Environment">
+        <Input name="water_temp_surface" label="Surface temp (°C)" defaultValue={dive?.water_temp_surface ?? ""} />
+        <Input name="water_temp_bottom" label="Bottom temp (°C)" defaultValue={dive?.water_temp_bottom ?? ""} />
+        <Input name="air_temp" label="Air temp (°C)" defaultValue={dive?.air_temp ?? ""} />
+        <Input name="visibility" label="Visibility (m)" defaultValue={dive?.visibility ?? ""} />
+        <Input name="current_strength" label="Current" defaultValue={dive?.current_strength ?? ""} />
+        <Input name="surface_conditions" label="Surface conditions" defaultValue={dive?.surface_conditions ?? ""} />
+        <Input name="weather" label="Weather" defaultValue={dive?.weather ?? ""} />
       </Section>
 
-      {/* Ausrüstung & Gas */}
-      <Section title="Ausrüstung & Gas">
-        <Input name="weight" label="Blei (kg)" defaultValue={dive?.weight ?? ""} />
-        <Input name="suit_type" label="Anzug" defaultValue={dive?.suit_type ?? ""} />
-        <Input name="tank_volume" label="Flasche (l)" defaultValue={dive?.tank_volume ?? ""} />
-        <Input name="gas_o2" label="O₂ (%) – 21 = Luft" defaultValue={dive?.gas_o2 ?? ""} />
-        <Input name="pressure_start" label="Druck Anfang (bar)" type="number" defaultValue={dive?.pressure_start ?? ""} />
-        <Input name="pressure_end" label="Druck Ende (bar)" type="number" defaultValue={dive?.pressure_end ?? ""} />
+      {/* Gear & gas */}
+      <Section title="Gear & gas">
+        <Input name="weight" label="Weight (kg)" defaultValue={dive?.weight ?? ""} />
+        <Input name="suit_type" label="Suit" defaultValue={dive?.suit_type ?? ""} />
+        <Input name="tank_volume" label="Tank (l)" defaultValue={dive?.tank_volume ?? ""} />
+        <Input name="gas_o2" label="O₂ (%) – 21 = air" defaultValue={dive?.gas_o2 ?? ""} />
+        <Input name="gas_he" label="He (%)" defaultValue={dive?.gas_he ?? ""} />
+        <Input name="pressure_start" label="Start pressure (bar)" type="number" defaultValue={dive?.pressure_start ?? ""} />
+        <Input name="pressure_end" label="End pressure (bar)" type="number" defaultValue={dive?.pressure_end ?? ""} />
       </Section>
 
-      {/* Begleitung */}
-      <Section title="Begleitung & Bewertung">
+      {/* Buddy & rating */}
+      <Section title="Buddy & rating">
         <Input name="buddy" label="Buddy" defaultValue={dive?.buddy ?? ""} />
-        <Input name="dive_guide" label="Guide / Divemaster" defaultValue={dive?.dive_guide ?? ""} />
+        <Input name="dive_guide" label="Guide / divemaster" defaultValue={dive?.dive_guide ?? ""} />
         <div>
-          <Label>Bewertung</Label>
+          <Label>Rating</Label>
           <select name="rating" className={inputCls} defaultValue={dive?.rating ?? ""}>
             <option value="">—</option>
             {[1, 2, 3, 4, 5].map((r) => (
-              <option key={r} value={r}>
-                {"★".repeat(r)}
-              </option>
+              <option key={r} value={r}>{"★".repeat(r)}</option>
             ))}
           </select>
         </div>
         <div className="sm:col-span-2">
-          <Label>Notizen</Label>
+          <Label>Notes</Label>
           <textarea
             name="notes"
             rows={4}
             defaultValue={dive?.notes ?? ""}
             className={inputCls}
-            placeholder="Beobachtungen, Meeresleben, Besonderheiten…"
+            placeholder="Observations, marine life, highlights…"
           />
         </div>
       </Section>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
           {error}
         </p>
       )}
@@ -280,13 +282,13 @@ export function DiveForm({
           disabled={saving}
           className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-ocean-600 py-3 text-sm font-semibold text-white shadow-lg hover:bg-ocean-700 disabled:opacity-60 md:flex-none md:px-6"
         >
-          <Save size={18} /> {saving ? "Speichern…" : "Speichern"}
+          <Save size={18} /> {saving ? "Saving…" : "Save"}
         </button>
         {isEdit && (
           <button
             type="button"
             onClick={handleDelete}
-            className="flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+            className="flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:bg-slate-900 dark:hover:bg-red-950"
           >
             <Trash2 size={18} />
           </button>
@@ -297,7 +299,7 @@ export function DiveForm({
 }
 
 const inputCls =
-  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200";
+  "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100";
 
 function Section({
   title,
@@ -307,8 +309,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="rounded-xl border border-slate-200 bg-white p-4">
-      <legend className="px-1 text-sm font-semibold text-slate-700">
+    <fieldset className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+      <legend className="px-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
         {title}
       </legend>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
@@ -318,7 +320,7 @@ function Section({
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1 block text-xs font-medium text-slate-600">
+    <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
       {children}
     </label>
   );

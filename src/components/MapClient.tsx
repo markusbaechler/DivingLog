@@ -9,8 +9,8 @@ const DiveMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full w-full items-center justify-center bg-ocean-50 text-sm text-ocean-400">
-        Karte wird geladen…
+      <div className="flex h-full w-full items-center justify-center bg-ocean-50 text-sm text-ocean-400 dark:bg-slate-900">
+        Loading map…
       </div>
     ),
   },

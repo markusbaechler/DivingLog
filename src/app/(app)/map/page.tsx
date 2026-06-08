@@ -36,17 +36,19 @@ export default async function MapPage() {
   return (
     <div className="space-y-3">
       <div>
-        <h1 className="text-xl font-bold text-slate-800">Tauchkarte</h1>
-        <p className="text-sm text-slate-500">
-          {points.length} Tauchplätze mit Koordinaten weltweit
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+          Dive map
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          {points.length} dive sites with coordinates worldwide
         </p>
       </div>
 
-      <div className="h-[70vh] overflow-hidden rounded-xl border border-slate-200">
+      <div className="h-[70vh] overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
         {points.length === 0 ? (
-          <div className="flex h-full items-center justify-center bg-ocean-50 p-6 text-center text-sm text-slate-500">
-            Noch keine Tauchplätze mit Koordinaten. Füge bei einem Tauchgang
-            Längen-/Breitengrad hinzu oder importiere GPS-Daten von Garmin.
+          <div className="flex h-full items-center justify-center bg-ocean-50 p-6 text-center text-sm text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+            No dive sites with coordinates yet. Add latitude/longitude to a dive
+            or import GPS data from a Garmin FIT file.
           </div>
         ) : (
           <MapClient points={points} />

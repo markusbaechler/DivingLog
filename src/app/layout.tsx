@@ -3,9 +3,9 @@ import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "DivingLog – Tauchlogbuch",
+  title: "DivingLog – Dive Logbook",
   description:
-    "Dein persönliches Tauchlogbuch mit Weltkarte, Statistiken sowie Garmin-/DivingLog-Import und Excel-Export.",
+    "Your personal dive logbook with a world map, statistics and Garmin / DivingLog import plus Excel export.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -26,11 +26,17 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Apply the saved theme before paint to avoid a flash of the wrong theme.
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="de">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         {children}
         <ServiceWorkerRegister />

@@ -196,9 +196,28 @@ export function parseGarminCsv(text: string): ParsedDive[] {
     weight: findCol(headers, ["gewicht", "weight", "blei"]),
     waterClass: findCol(headers, ["gewässerart", "gewasserart", "wasserart", "water type"]),
     surface: findCol(headers, ["surface interval", "oberflächenpause", "oberflachenpause"]),
+    calories: findCol(headers, ["kalorien", "calories"]),
+    avgHr: findCol(headers, ["ø herzfrequenz", "durchschnittliche herzfrequenz", "avg hr", "average heart"]),
+    maxHr: findCol(headers, ["maximale herzfrequenz", "max hr", "max heart"]),
+    current: findCol(headers, ["strömung", "stromung", "current"]),
+    surfaceCond: findCol(headers, ["oberflächenbedingungen", "oberflachenbedingungen", "surface condition"]),
+    gasMix: findCol(headers, ["gasgemisch", "gas mix", "gemisch"]),
   };
 
   const depthFallback = col.maxDepth === -1 ? findCol(headers, ["tiefe", "depth"]) : -1;
+
+  // Sauerstoffanteil aus Gasgemisch-Text ableiten ("EAN32" → 32, "Luft" → 21)
+  const parseO2 = (raw: string | undefined): number | null => {
+    if (!raw) return null;
+    const t = raw.toLowerCase();
+    if (t.includes("air") || t.includes("luft")) return 21;
+    const m = raw.match(/(\d{2,3})/);
+    if (m) {
+      const v = parseInt(m[1], 10);
+      if (v >= 21 && v <= 100) return v;
+    }
+    return null;
+  };
 
   const dives: ParsedDive[] = [];
 
@@ -233,21 +252,40 @@ export function parseGarminCsv(text: string): ParsedDive[] {
 
     const title = get(col.title)?.trim();
 
+    const surfaceSec = (() => {
+      const min = parseDurationMinutes(get(col.surface));
+      return min == null ? null : min * 60;
+    })();
+
     const dive: ParsedDive = {
       dive: {
         dive_date: diveDate,
+        title: title || null,
         dive_number: parseNumber(get(col.number))
           ? Math.round(parseNumber(get(col.number))!)
           : null,
         max_depth: maxDepth,
         avg_depth: parseNumber(get(col.avgDepth)),
         duration,
+        surface_interval: surfaceSec,
         water_temp_bottom:
           parseNumber(get(col.minWaterTemp)) ??
           parseNumber(get(col.minTemp)) ??
           parseNumber(get(col.waterTemp)),
         water_temp_surface: parseNumber(get(col.maxTemp)),
         weight: parseNumber(get(col.weight)),
+        gas_o2: parseO2(get(col.gasMix)),
+        calories: parseNumber(get(col.calories))
+          ? Math.round(parseNumber(get(col.calories))!)
+          : null,
+        avg_heart_rate: parseNumber(get(col.avgHr))
+          ? Math.round(parseNumber(get(col.avgHr))!)
+          : null,
+        max_heart_rate: parseNumber(get(col.maxHr))
+          ? Math.round(parseNumber(get(col.maxHr))!)
+          : null,
+        current_strength: get(col.current) ?? null,
+        surface_conditions: get(col.surfaceCond) ?? null,
         entry_source: "garmin",
         external_id: `garmin-csv:${diveDate}${title ? `:${title}` : ""}`,
       },

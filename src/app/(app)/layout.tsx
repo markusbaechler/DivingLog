@@ -22,7 +22,7 @@ export default async function AppLayout({
     .maybeSingle();
 
   const name =
-    profile?.display_name || user.email?.split("@")[0] || "Taucher:in";
+    profile?.display_name || user.email?.split("@")[0] || "Diver";
 
   return (
     <div className="min-h-screen">

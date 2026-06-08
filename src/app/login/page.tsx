@@ -10,7 +10,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-ocean-800 to-ocean-950 text-ocean-200">
-          Lädt…
+          Loading…
         </main>
       }
     >
@@ -43,7 +43,7 @@ function LoginForm() {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         setInfo(
-          "Konto erstellt! Falls E-Mail-Bestätigung aktiviert ist, prüfe dein Postfach. Danach kannst du dich anmelden.",
+          "Account created! If email confirmation is enabled, check your inbox. Then you can sign in.",
         );
         setMode("signin");
       } else {
@@ -56,7 +56,7 @@ function LoginForm() {
         router.refresh();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unbekannter Fehler");
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -64,36 +64,38 @@ function LoginForm() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-ocean-800 to-ocean-950 px-6">
-      <div className="w-full max-w-sm rounded-2xl bg-white/95 p-8 shadow-xl backdrop-blur">
+      <div className="w-full max-w-sm rounded-2xl bg-white/95 p-8 shadow-xl backdrop-blur dark:bg-slate-900/95">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-600 text-white">
             <Waves size={30} />
           </div>
-          <h1 className="text-2xl font-bold text-ocean-900">DivingLog</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-ocean-900 dark:text-ocean-200">
+            DivingLog
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {mode === "signin"
-              ? "Melde dich an, um dein Logbuch zu öffnen"
-              : "Erstelle dein persönliches Tauchlogbuch"}
+              ? "Sign in to open your logbook"
+              : "Create your personal dive logbook"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              E-Mail
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Email
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200"
-              placeholder="taucher@beispiel.ch"
+              className={inputCls}
+              placeholder="diver@example.com"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Passwort
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Password
             </label>
             <input
               type="password"
@@ -101,18 +103,18 @@ function LoginForm() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200"
+              className={inputCls}
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
               {error}
             </p>
           )}
           {info && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
               {info}
             </p>
           )}
@@ -123,30 +125,33 @@ function LoginForm() {
             className="w-full rounded-lg bg-ocean-600 py-2.5 text-sm font-semibold text-white transition hover:bg-ocean-700 disabled:opacity-60"
           >
             {loading
-              ? "Bitte warten…"
+              ? "Please wait…"
               : mode === "signin"
-                ? "Anmelden"
-                : "Registrieren"}
+                ? "Sign in"
+                : "Sign up"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
-          {mode === "signin" ? "Noch kein Konto?" : "Schon registriert?"}{" "}
+        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+          {mode === "signin" ? "No account yet?" : "Already registered?"}{" "}
           <button
             onClick={() => {
               setMode(mode === "signin" ? "signup" : "signin");
               setError(null);
               setInfo(null);
             }}
-            className="font-semibold text-ocean-600 hover:underline"
+            className="font-semibold text-ocean-600 hover:underline dark:text-ocean-400"
           >
-            {mode === "signin" ? "Registrieren" : "Anmelden"}
+            {mode === "signin" ? "Sign up" : "Sign in"}
           </button>
         </p>
       </div>
       <p className="mt-6 text-center text-xs text-ocean-200">
-        Mobile-first Tauchlogbuch · Karte · Statistiken · Import/Export
+        Mobile-first dive logbook · Map · Statistics · Import/Export
       </p>
     </main>
   );
 }
+
+const inputCls =
+  "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100";
